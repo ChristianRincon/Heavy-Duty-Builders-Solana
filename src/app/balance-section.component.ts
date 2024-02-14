@@ -25,6 +25,6 @@ export class BalanceSectionComponent{
 
     readonly account = computedAsync(
         () => this._shyftyApiService.getAccount(this._publicKey()?.toBase58()),
-        { requireSync: false},
+        { requireSync: false },
     );
 }
