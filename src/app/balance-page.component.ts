@@ -22,15 +22,15 @@ import { toSignal } from '@angular/core/rxjs-interop';
           </p>
         </div>
       }@else{
-        <div class="text-center">Conecte su Wallet</div>
+        <div class="text-center">Esperando su Wallet...</div>
       }
         `
     }
 )
 export class BalancePageComponent {
     private readonly _shiftyApiService = inject(ShyftApiService);
-  private readonly _walletStore = inject(WalletStore);
-  private readonly _publicKey = toSignal(this._walletStore.publicKey$);
+    private readonly _walletStore = inject(WalletStore);
+    private readonly _publicKey = toSignal(this._walletStore.publicKey$);
 
   readonly account = computedAsync(
     () => this._shiftyApiService.getAccount(this._publicKey()?.toBase58()),

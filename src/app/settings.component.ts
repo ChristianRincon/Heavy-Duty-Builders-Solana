@@ -4,7 +4,7 @@ import { Component } from "@angular/core";
     {
         selector: 'settings-selector',
         standalone: true,
-        template: `<p>Settings</p>`
+        template: `<div class="text-center">Settings</div>`
     }
 )
 
