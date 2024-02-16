@@ -32,10 +32,10 @@ export class ShyftApiService {
       return of(null);
     }
     
-    const url = new URL('https://api.shyft.to/sol/v1/wallet/transaction_history');
+    const url = new URL('https://api.shyft.to/sol/v1/transaction/history');
 
     url.searchParams.set('network', 'mainnet-beta');
-    url.searchParams.set('wallet', publicKey);
+    url.searchParams.set('account', publicKey);
 
     return this._httpClient
       .get<{
