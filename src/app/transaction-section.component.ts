@@ -3,58 +3,62 @@ import { ShyftApiService } from "./shyft-api.service";
 import { WalletStore } from "@heavy-duty/wallet-adapter";
 import { toSignal } from '@angular/core/rxjs-interop';
 import { computedAsync } from 'ngxtension/computed-async';
+import { MatCard } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
 
 @Component ({
     selector:'transaction-section',
     standalone:true,
+    imports: [MatTableModule, MatCard],
     template:`    
-    @if(account()){
-        <div class="flex justify-center items-center">
-        <table class="text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    Fecha
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Monto del fee
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Origen
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    {{ account()?.timestamp }}
-                </th>
-                <td class="px-6 py-4">
-                    {{ account()?.fee }}
-                </td>
-                <td class="px-6 py-4">
-                    {{ account()?.fee_payer }}
-                </td>
-            </tr>
-        </tbody>
+    <mat-card class="px-4 py-8 items-center">
+        <h2 class="mb-5 text-3xl">Historial de Transacciones</h2>
+        <br>
+      @if (!transactions()) {
+        <p class="text-center text-xl text-green-300">Esperando su wallet...</p>
+      } @else if (transactions()?.length === 0) {
+        <p class="text-center">No hay transacciones disponibles.</p>
+      } @else {
+        <table mat-table [dataSource]="transactions() ?? []">
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let element">{{ element.type }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">{{ element.status }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef>Timestamp</th>
+            <td mat-cell *matCellDef="let element">{{ element.timestamp }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="fee">
+            <th mat-header-cell *matHeaderCellDef>Monto del Fee</th>
+            <td mat-cell *matCellDef="let element">{{ element.fee }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="origen">
+            <th mat-header-cell *matHeaderCellDef>Origen</th>
+            <td mat-cell *matCellDef="let element">{{ element.fee_payer }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
-        </div>
-        <!--<div class="mb-4 top-4 left-4 flex justify-center items-center gap-2">
-            <p class="text-xl">{{ account()?.timestamp }}</p>
-            <p class="text-xl">{{ account()?.fee }}</p>
-            <p class="text-xl">{{ account()?.fee_payer }}</p>
-        </div>-->
-    }@else{
-        <p class="text-center text-xl">Esperando su wallet...</p>
-    }
+      }
+    </mat-card>
 `
 })
 export class TransactionSectionComponent{
     private readonly _shyftyApiService = inject(ShyftApiService);
     private readonly _walletStore = inject(WalletStore);
     private readonly _publicKey = toSignal(this._walletStore.publicKey$);
+    readonly displayedColumns = ['type', 'status', 'timestamp', 'fee', 'origen'];
 
-    readonly account = computedAsync(
+    readonly transactions  = computedAsync(
         () => this._shyftyApiService.getTransactions(this._publicKey()?.toBase58()),
         { requireSync: false },
     );
