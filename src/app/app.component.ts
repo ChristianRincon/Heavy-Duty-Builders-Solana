@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TransferModalComponent } from './transfer-modal.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { ConnectionStore } from '@heavy-duty/wallet-adapter';
 
 @Component({
   standalone: true,
@@ -52,8 +53,9 @@ import { MatIcon } from '@angular/material/icon';
 })
 export class AppComponent {
   private readonly _matdialog = inject(MatDialog);
-  
+
   onTransfer(){
     this._matdialog.open(TransferModalComponent);
   }
+
 }

@@ -7,7 +7,15 @@ import { environment } from 'src/environment/environment';
 export class ShyftApiService {
   private readonly _httpClient = inject(HttpClient);
   private readonly _header = { 'x-api-key': environment.API_TOKEN };
-  private readonly _mint = '7EYnhQoR9YM3N7UoaKRoA44Uy8JeaZV3qyouov87awMs';
+  private readonly _mint = environment.MINT;
+
+  getEndpoint(){
+    const url = new URL('https://rpc.shyft.to');
+
+    url.searchParams.set('api_key', environment.API_TOKEN);
+    
+    return url.toString();
+  }
 
   getAccount(publicKey: string | undefined | null) {
     if (!publicKey) {
