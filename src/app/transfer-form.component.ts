@@ -1,10 +1,13 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput } from "@angular/material/input";
 import { MatIcon } from "@angular/material/icon";
 import { MatButton } from '@angular/material/button';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogRef } from '@angular/material/dialog';
 
 export interface TransferFormModel{
     memo: string | null;
@@ -21,7 +24,7 @@ export interface TransferFormPayload{
 @Component({
     selector: 'transfer-form',
     standalone: true,
-    imports: [FormsModule, MatFormFieldModule, MatInput, MatIcon, MatButton, MatButtonModule],
+    imports: [FormsModule, MatFormFieldModule, MatInput, MatIcon, MatButton, MatButtonModule, MatTooltipModule],
     template:`
         <form #form="ngForm" class="w-[400px]" (ngSubmit)="onSubmitForm(form)">
             <mat-form-field appearance="fill" class="w-full mb-4">
@@ -99,13 +102,23 @@ export interface TransferFormPayload{
                 }
             </mat-form-field>
 
-            <footer class="flex justify-center">
-                <button type="submit" mat-fab extended>Enviar</button>
+            <footer class="flex justify-center gap-10">
+                <span [matTooltip]="form.invalid ? 'Complete Todos Los Campos' : 'Pulse Para Enviar'">
+                    <button type="submit" mat-fab class="hover:scale-95" [disabled]="form.invalid">
+                        <mat-icon matSuffix>check</mat-icon>
+                    </button>
+                </span>
+                <button type="button" mat-fab matTooltip="Pulse Para Cancelar" (click)="closeForm()" class="hover:scale-95" color="warn">
+                    <mat-icon matSuffix>close</mat-icon>
+                </button>
             </footer>
         </form>
         `
 })
 export class TransferFormComponent {
+    private readonly _matSnackBar = inject(MatSnackBar);
+    private readonly _matDialogRef = inject(MatDialogRef);
+
     readonly model: TransferFormModel = {
         memo: null,
         amount: null,
@@ -113,10 +126,14 @@ export class TransferFormComponent {
     };
 
     @Output () readonly submitForm = new EventEmitter<TransferFormPayload>()
-
+  
     onSubmitForm(form: NgForm){
         if(form.invalid || this.model.memo === null || this.model.amount === null || this.model.receiverAddress === null){
-            console.error('El formulario es inválido');
+            this._matSnackBar.open('Debe completar todos los campos', 'Cerrar', {
+                verticalPosition: 'bottom',
+                horizontalPosition: 'end',
+                duration: 5000          
+            });
         }else{
             this.submitForm.emit({
                 memo: this.model.memo,
@@ -125,5 +142,9 @@ export class TransferFormComponent {
             })
         }
     }
+
+  closeForm() {
+    this._matDialogRef.close();
+  }
 
  }
