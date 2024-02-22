@@ -137,7 +137,7 @@ export class TransferFormComponent {
         }else{
             this.submitForm.emit({
                 memo: this.model.memo,
-                amount: this.model.amount,
+                amount: this.model.amount * 10 ** 9,
                 receiverAddress: this.model.receiverAddress,
             })
         }
